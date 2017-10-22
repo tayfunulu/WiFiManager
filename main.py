@@ -67,7 +67,7 @@ if check_connection ():
 	# Main Code is here
 	print ("ESP OK")
 	# to import your code;
-	import odalar_mqtt.py
+	# import sample_mqtt.py
 
 else:
 	print ("There is something wrong")
