@@ -1,7 +1,7 @@
 # WiFi Manager
 
 Lang   : Micropython 
-Tested : 1.8 
+Tested : 1.8 and 1.9.2 (updated)
 
 <b>Description</b> : WiFi manager for ESP8266 - ESP12 for micropython 
 
