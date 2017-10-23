@@ -37,6 +37,7 @@ def send_response(client, payload, status_code=200):
 		client.sendall(payload)
 
 def handle_root(client):
+	global wlan_sta
 	response_header = """
 		<html><h1 style="color: #5e9ca0; text-align: center;"><span style="color: #ff0000;">Wi-Fi Client Setup</span></h1>
 		<form action="configure" method="post">
@@ -44,6 +45,7 @@ def handle_root(client):
 		<tbody><tr><td>Wifi Name</td>
 		<td style="text-align: center;"><select id="ssid" name="ssid">
 	"""
+	wlan_sta.active(True)
 
 	response_variable = ""
 	for ssid, *_ in wlan_sta.scan():
@@ -76,9 +78,15 @@ def handle_configure(client, request):
 	if match is None:
 		send_response(client, "Parameters not found", status_code=400)
 		return (False)
-
-	ssid = match.group(1).replace("%3F","?").replace("%21","!")
-	password = match.group(2).replace("%3F","?").replace("%21","!")
+	# version 1.9 compatibility
+	try:
+		ssid = match.group(1).decode("utf-8").replace("%3F","?").replace("%21","!")
+		password = match.group(2).decode("utf-8").replace("%3F","?").replace("%21","!")
+	except:
+		ssid = match.group(1).replace("%3F","?").replace("%21","!")
+		password = match.group(2).replace("%3F","?").replace("%21","!")
+	
+	
 	if len(ssid) == 0:
 		send_response(client, "SSID must be provided", status_code=400)
 		return (False)
@@ -136,7 +144,9 @@ def start(port=80):
 	server_socket = socket.socket()
 	server_socket.bind(addr)
 	server_socket.listen(1)
-
+	
+	print('Connect to Wifi ssid like Micropython-XXXX , Default pass: micropythoN ')
+	print('And connect to esp via your favorite web browser (like 192.168.4.1)')
 	print('listening on', addr)
 	
 	while True:
@@ -162,8 +172,12 @@ def start(port=80):
 			# skip invalid requests
 			client.close()
 			continue
-        
-		url = ure.search("(?:GET|POST) /(.*?)(?:\\?.*?)? HTTP", request).group(1).rstrip("/")
+		
+		# version 1.9 compatibility
+		try:
+			url = ure.search("(?:GET|POST) /(.*?)(?:\\?.*?)? HTTP", request).group(1).decode("utf-8").rstrip("/")
+		except:
+			url = ure.search("(?:GET|POST) /(.*?)(?:\\?.*?)? HTTP", request).group(1).rstrip("/")
 		print("URL is {}".format(url))
 
 		if url == "":
