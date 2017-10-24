@@ -8,7 +8,6 @@ def do_connect(ntwrk_ssid, netwrk_pass):
 	sta_if.active(True)
 	if not sta_if.isconnected():
 		print('try to connect : '+ntwrk_ssid+' network...')
-		sta_if.active(True)
 		sta_if.connect(ntwrk_ssid, netwrk_pass)
 		a=0
 		while not sta_if.isconnected() | (a > 99) :
