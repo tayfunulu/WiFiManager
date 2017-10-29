@@ -22,4 +22,6 @@ Write your code on main.py or import from main.py
 3. step : Saving password on passwd.dat file. 
 4. step : Run user code 
 
+![alt text](https://github.com/tayfunulu/WiFiManager/blob/master/WiFi_Manager.png)
+
 **networkconfig.py based on code of CPOPP - https://github.com/cpopp/MicroPythonSamples
