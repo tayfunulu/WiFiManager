@@ -6,6 +6,10 @@ import time
 wlan_ap = network.WLAN(network.AP_IF)
 wlan_sta = network.WLAN(network.STA_IF)
 
+# setup for ssid 
+ssid_name= "WifiManager"
+ssid_password = "tayfunulu"
+
 server_socket = None
 
 def do_connect(ntwrk_ssid, netwrk_pass):
@@ -139,13 +143,22 @@ def start(port=80):
 
 	global server_socket
 	global wlan_sta
+	global wlan_ap
+	global ssid_name
+	global ssid_password
 	stop()
-
+	
+	wlan_sta.active(True)
+	wlan_ap.active(True)
+	
+	wlan_ap.config(essid=ssid_name,password=ssid_password)
+	
+	
 	server_socket = socket.socket()
 	server_socket.bind(addr)
 	server_socket.listen(1)
 	
-	print('Connect to Wifi ssid like Micropython-XXXX , Default pass: micropythoN ')
+	print('Connect to Wifi ssid :'+ssid_name+' , Default pass: '+ssid_password)
 	print('And connect to esp via your favorite web browser (like 192.168.4.1)')
 	print('listening on', addr)
 	
