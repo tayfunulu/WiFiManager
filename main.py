@@ -5,13 +5,13 @@ import time
 wlan_sta = network.WLAN(network.STA_IF)
 
 
-def do_connect(ntwrk_ssid, netwrk_pass):
+def do_connect(ssid, password):
     sta_if = network.WLAN(network.STA_IF)
     sta_if.active(True)
     if sta_if.isconnected():
         return None
-    print('Trying to connect to %s...' % ntwrk_ssid)
-    sta_if.connect(ntwrk_ssid, netwrk_pass)
+    print('Trying to connect to %s...' % ssid)
+    sta_if.connect(ssid, password)
     for retry in range(100):
         connected = sta_if.isconnected()
         if connected:
@@ -21,7 +21,7 @@ def do_connect(ntwrk_ssid, netwrk_pass):
     if connected:
         print('\nConnected. Network config: ', sta_if.ifconfig())
     else:
-        print('\nFailed. Not Connected to: ' + ntwrk_ssid)
+        print('\nFailed. Not Connected to: ' + ssid)
     return connected
 
 
@@ -36,18 +36,17 @@ def check_connection():
         if not wlan_sta.isconnected():
             # inside passwd file, there is a list of WiFi networks (CSV format)
             with open("passwd.dat") as f:
-                data = f.readlines()
+                lines = f.readlines()
             # Search WiFis in range
             ssids_found = wlan_sta.scan()
 
             # matching...
-            for ipass in data:
-                ssid_list = ipass.strip("\n").split(";")
-
-                for i in ssids_found:
-                    if ssid_list[0] in i[0]:
+            for line in lines:
+                ssid, password = line.strip("\n").split(";")
+                for ssid_found in ssids_found:
+                    if ssid in ssid_found[0]:
                         print("OK. WiFi found.")
-                        if do_connect(ssid_list[0], ssid_list[1]):
+                        if do_connect(ssid, password):
                             return True
 
             if not wlan_sta.isconnected():
