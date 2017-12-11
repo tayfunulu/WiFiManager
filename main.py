@@ -8,20 +8,21 @@ wlan_sta = network.WLAN(network.STA_IF)
 def do_connect(ntwrk_ssid, netwrk_pass):
     sta_if = network.WLAN(network.STA_IF)
     sta_if.active(True)
-    if not sta_if.isconnected():
-        print('Trying to connect to %s...' % ntwrk_ssid)
-        sta_if.connect(ntwrk_ssid, netwrk_pass)
-        retry = 0
-        while not sta_if.isconnected() and retry < 100:
-            time.sleep(0.1)
-            retry += 1
-            print('.', end='')
-        if sta_if.isconnected():
-            print('\nConnected. Network config: ', sta_if.ifconfig())
-            return True
-        else:
-            print('\nFailed. Not Connected to: ' + ntwrk_ssid)
-            return False
+    if sta_if.isconnected():
+        return None
+    print('Trying to connect to %s...' % ntwrk_ssid)
+    sta_if.connect(ntwrk_ssid, netwrk_pass)
+    for retry in range(100):
+        connected = sta_if.isconnected()
+        if connected:
+            break
+        time.sleep(0.1)
+        print('.', end='')
+    if connected:
+        print('\nConnected. Network config: ', sta_if.ifconfig())
+    else:
+        print('\nFailed. Not Connected to: ' + ntwrk_ssid)
+    return connected
 
 
 def check_connection():
