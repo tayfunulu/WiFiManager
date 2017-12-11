@@ -12,6 +12,27 @@ ssid_password = "tayfunulu"
 
 server_socket = None
 
+# list of WiFi networks (CSV format: ssid,password)
+NETWORK_PROFILES = 'passwd.dat'
+
+
+def read_profiles():
+    with open(NETWORK_PROFILES) as f:
+        lines = f.readlines()
+    profiles = {}
+    for line in lines:
+        ssid, password = line.strip("\n").split(";")
+        profiles[ssid] = password
+    return profiles
+
+
+def write_profiles(profiles):
+    lines = []
+    for ssid, password in profiles.items():
+        lines.append("%s;%s\n" % (ssid, password))
+    with open(NETWORK_PROFILES, "w") as f:
+        f.write(''.join(lines))
+
 
 def do_connect(ssid, password):
     sta_if = network.WLAN(network.STA_IF)
@@ -86,7 +107,7 @@ def handle_root(client):
             <h5>
                 <span style="color: #ff0000;">
                     Your ssid and password information will be saved into the
-                    "passwd.dat" file in your ESP module for future usage.
+                    "%(filename)s" file in your ESP module for future usage.
                     Be careful about security!
                 </span>
             </h5>
@@ -105,7 +126,7 @@ def handle_root(client):
                 </li>
             </ul>
         </html>
-    """)
+    """ % dict(filename=NETWORK_PROFILES))
     send_response(client, "\n".join(response))
 
 
@@ -143,13 +164,11 @@ def handle_configure(client, request):
         """ % dict(ssid=ssid)
         send_response(client, response)
         try:
-            with open("passwd.dat", "r") as f:
-                ex_data = f.read()
-        except:
-            ex_data = ""
-        ex_data = "%s;%s\n" % (ssid, password) + ex_data
-        with open("passwd.dat", "w") as f:
-            f.write(ex_data)
+            profiles = read_profiles()
+        except OSError:
+            profiles = {}
+        profiles[ssid] = password
+        write_profiles(profiles)
         return True
     else:
         response = """\
