@@ -48,7 +48,8 @@ def handle_root(client):
     wlan_sta.active(True)
     ssids = sorted(ssid.decode('utf-8') for ssid, *_ in wlan_sta.scan())
 
-    response_header = """\
+    response = []
+    response.append("""\
         <html>
             <h1 style="color: #5e9ca0; text-align: center;">
                 <span style="color: #ff0000;">
@@ -58,20 +59,18 @@ def handle_root(client):
             <form action="configure" method="post">
                 <table style="margin-left: auto; margin-right: auto;">
                     <tbody>
-    """
+    """)
 
-    response_variable = []
     for ssid in ssids:
-        response_variable.append("""\
+        response.append("""\
                         <tr>
                             <td colspan="2">
                                 <input type="radio" name="ssid" value="{0}" />{0}
                             </td>
                         </tr>
         """.format(ssid))
-    response_variable = "\n".join(response_variable)
 
-    response_footer = """\
+    response.append("""\
                         <tr>
                             <td>Password:</td>
                             <td><input name="password" type="password" /></td>
@@ -106,8 +105,8 @@ def handle_root(client):
                 </li>
             </ul>
         </html>
-    """
-    send_response(client, response_header + response_variable + response_footer)
+    """)
+    send_response(client, "\n".join(response))
 
 
 def handle_configure(client, request):
@@ -129,7 +128,7 @@ def handle_configure(client, request):
         return False
 
     if do_connect(ssid, password):
-        response_footer = """\
+        response = """\
             <html>
                 <center>
                     <br><br>
@@ -142,7 +141,7 @@ def handle_configure(client, request):
                 </center>
             </html>
         """ % dict(ssid=ssid)
-        send_response(client, response_footer)
+        send_response(client, response)
         try:
             with open("passwd.dat", "r") as f:
                 ex_data = f.read()
@@ -153,7 +152,7 @@ def handle_configure(client, request):
             f.write(ex_data)
         return True
     else:
-        response_footer = """\
+        response = """\
             <html>
                 <center>
                     <h1 style="color: #5e9ca0; text-align: center;">
@@ -167,8 +166,8 @@ def handle_configure(client, request):
                     </form>
                 </center>
             </html>
-            """ % dict(ssid=ssid)
-        send_response(client, response_footer)
+        """ % dict(ssid=ssid)
+        send_response(client, response)
         return False
 
 
