@@ -11,10 +11,10 @@ def do_connect(ntwrk_ssid, netwrk_pass):
     if not sta_if.isconnected():
         print('Trying to connect to %s...' % ntwrk_ssid)
         sta_if.connect(ntwrk_ssid, netwrk_pass)
-        a = 0
-        while not sta_if.isconnected() | (a > 99):
+        retry = 0
+        while not sta_if.isconnected() and retry < 100:
             time.sleep(0.1)
-            a += 1
+            retry += 1
             print('.', end='')
         if sta_if.isconnected():
             print('\nConnected. Network config: ', sta_if.ifconfig())
