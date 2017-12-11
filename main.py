@@ -35,9 +35,8 @@ def check_connection():
         time.sleep(3)
         if not wlan_sta.isconnected():
             # inside passwd file, there is a list of WiFi networks (CSV format)
-            f = open("passwd.dat")
-            data = f.readlines()
-            f.close()
+            with open("passwd.dat") as f:
+                data = f.readlines()
             # Search WiFis in range
             ssids_found = wlan_sta.scan()
 
