@@ -214,7 +214,7 @@ def start(port=80):
     wlan_sta.active(True)
     wlan_ap.active(True)
 
-    wlan_ap.config(essid=ssid_name, password=ssid_password)
+    wlan_ap.config(essid=ssid_name, password=ssid_password, authmode=3)  # WPA2
 
     server_socket = socket.socket()
     server_socket.bind(addr)
