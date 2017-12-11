@@ -106,14 +106,13 @@ def handle_configure(client, request):
 		<br><br>"""
         send_response(client, response_footer)
         try:
-            with open("passwd.dat", "r") as fo:
-                ex_data = fo.read()
-            ex_data = ssid + ";" + password + "\n" + ex_data
-            with open("passwd.dat", "w") as fo:
-                fo.write(ex_data)
+            with open("passwd.dat", "r") as f:
+                ex_data = f.read()
         except:
-            with open("passwd.dat", "w") as fo:
-                fo.write(ssid + ";" + password + "\n")
+            ex_data = ""
+        ex_data = "%s;%s\n" % (ssid, password) + ex_data
+        with open("passwd.dat", "w") as f:
+            f.write(ex_data)
         return True
     else:
         response_footer = """
