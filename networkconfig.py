@@ -45,38 +45,68 @@ def send_response(client, payload, status_code=200):
 
 def handle_root(client):
     global wlan_sta
-    response_header = """
-		<html><h1 style="color: #5e9ca0; text-align: center;"><span style="color: #ff0000;">Wi-Fi Client Setup</span></h1>
-		<form action="configure" method="post">
-		<table style="margin-left: auto; margin-right: auto;">
-		<tbody><tr><td>Wifi Name</td>
-		<td style="text-align: center;"><select id="ssid" name="ssid">
-	"""
+    response_header = """\
+        <html>
+            <h1 style="color: #5e9ca0; text-align: center;">
+                <span style="color: #ff0000;">
+                    Wi-Fi Client Setup
+                </span>
+            </h1>
+            <form action="configure" method="post">
+                <table style="margin-left: auto; margin-right: auto;">
+                    <tbody>
+                        <tr>
+                            <td>
+                                WiFi Name
+                            </td>
+                            <td style="text-align: center;">
+                                <select id="ssid" name="ssid">
+    """
     wlan_sta.active(True)
 
     response_variable = ""
     for ssid, *_ in wlan_sta.scan():
         response_variable += '<option value="{0}">{0}</option>'.format(ssid.decode("utf-8"))
 
-    response_footer = """
-		</select></td></tr>
-		<tr><td>Password</td>
-		<td><input name="password" type="password" /></td>
-		</tr></tbody>
-		</table>
-		<p style="text-align: center;"><input type="submit" value="Submit" /></p>
-		</form>
-		<p>&nbsp;</p>
-		<hr />
-		<h5><span style="color: #ff0000;">Your ssid and password information will be saved into the "passwd.dat" file in your ESP module for future usage. Be careful about security!</span></h5>
-		<hr />
-		<h2 style="color: #2e6c80;">Some useful infos:</h2>
-		<ul>
-		<li>Wi-Fi Client for MicroPython GitHub from&nbsp;<a href="https://github.com/cpopp/MicroPythonSamples" target="_blank" rel="noopener">cpopp</a></li>
-		<li>My github address <a href="https://github.com/tayfunulu" target="_blank" rel="noopener">tayfunulu</a></li>
-		</ul>
-		</html>
-	"""
+    response_footer = """\
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Password</td>
+                            <td><input name="password" type="password" /></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p style="text-align: center;">
+                    <input type="submit" value="Submit" />
+                </p>
+            </form>
+            <p>&nbsp;</p>
+            <hr />
+            <h5>
+                <span style="color: #ff0000;">
+                    Your ssid and password information will be saved into the
+                    "passwd.dat" file in your ESP module for future usage.
+                    Be careful about security!
+                </span>
+            </h5>
+            <hr />
+            <h2 style="color: #2e6c80;">
+                Some useful infos:
+            </h2>
+            <ul>
+                <li>
+                    Original code from <a href="https://github.com/cpopp/MicroPythonSamples"
+                        target="_blank" rel="noopener">cpopp/MicroPythonSamples</a>.
+                </li>
+                <li>
+                    This code available at <a href="https://github.com/tayfunulu/WiFiManager"
+                        target="_blank" rel="noopener">tayfunulu/WiFiManager</a>.
+                </li>
+            </ul>
+        </html>
+    """
     send_response(client, response_header + response_variable + response_footer)
 
 
@@ -99,11 +129,19 @@ def handle_configure(client, request):
         return False
 
     if do_connect(ssid, password):
-        response_footer = """
-		<html>
-		<center><br><br>
-		<h1 style="color: #5e9ca0; text-align: center;"><span style="color: #ff0000;">ESP successfully connected to Wi-Fi network """ + ssid + """.</span></h1>
-		<br><br>"""
+        response_footer = """\
+            <html>
+                <center>
+                    <br><br>
+                    <h1 style="color: #5e9ca0; text-align: center;">
+                        <span style="color: #ff0000;">
+                            ESP successfully connected to WiFi network %(ssid)s.
+                        </span>
+                    </h1>
+                    <br><br>
+                </center>
+            </html>
+        """ % dict(ssid=ssid)
         send_response(client, response_footer)
         try:
             with open("passwd.dat", "r") as f:
@@ -115,15 +153,21 @@ def handle_configure(client, request):
             f.write(ex_data)
         return True
     else:
-        response_footer = """
-		<html>
-		<center>
-		<h1 style="color: #5e9ca0; text-align: center;"><span style="color: #ff0000;">Wi-Fi Not Configured to """ + ssid + """</span></h1>
-		<br><br>
-		<form>
-			<input type="button" value="Go back!" onclick="history.back()"></input>
-		</form></center></html>
-		"""
+        response_footer = """\
+            <html>
+                <center>
+                    <h1 style="color: #5e9ca0; text-align: center;">
+                        <span style="color: #ff0000;">
+                            ESP could not connect to WiFi network %(ssid)s.
+                        </span>
+                    </h1>
+                    <br><br>
+                    <form>
+                        <input type="button" value="Go back!" onclick="history.back()"></input>
+                    </form>
+                </center>
+            </html>
+            """ % dict(ssid=ssid)
         send_response(client, response_footer)
         return False
 
