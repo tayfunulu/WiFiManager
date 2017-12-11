@@ -45,6 +45,9 @@ def send_response(client, payload, status_code=200):
 
 def handle_root(client):
     global wlan_sta
+    wlan_sta.active(True)
+    ssids = sorted(ssid.decode('utf-8') for ssid, *_ in wlan_sta.scan())
+
     response_header = """\
         <html>
             <h1 style="color: #5e9ca0; text-align: center;">
@@ -55,25 +58,22 @@ def handle_root(client):
             <form action="configure" method="post">
                 <table style="margin-left: auto; margin-right: auto;">
                     <tbody>
-                        <tr>
-                            <td>
-                                WiFi Name
-                            </td>
-                            <td style="text-align: center;">
-                                <select id="ssid" name="ssid">
     """
-    wlan_sta.active(True)
 
-    response_variable = ""
-    for ssid, *_ in wlan_sta.scan():
-        response_variable += '<option value="{0}">{0}</option>'.format(ssid.decode("utf-8"))
-
-    response_footer = """\
-                                </select>
+    response_variable = []
+    for ssid in ssids:
+        response_variable.append("""\
+                        <tr>
+                            <td colspan="2">
+                                <input type="radio" name="ssid" value="{0}" />{0}
                             </td>
                         </tr>
+        """.format(ssid))
+    response_variable = "\n".join(response_variable)
+
+    response_footer = """\
                         <tr>
-                            <td>Password</td>
+                            <td>Password:</td>
                             <td><input name="password" type="password" /></td>
                         </tr>
                     </tbody>
