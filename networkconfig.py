@@ -68,12 +68,12 @@ def handle_root(client):
 		</form>
 		<p>&nbsp;</p>
 		<hr />
-		<h5><span style="color: #ff0000;">!!! your ssid and password information will save "passwd.dat" file inside of your esp module to use next time... be careful for security !!!</span></h5>
+		<h5><span style="color: #ff0000;">Your ssid and password information will be saved into the "passwd.dat" file in your ESP module for future usage. Be careful about security!</span></h5>
 		<hr />
 		<h2 style="color: #2e6c80;">Some useful infos:</h2>
 		<ul>
-		<li>Wi-Fi Client for Micropython GitHub from&nbsp;<a href="https://github.com/cpopp/MicroPythonSamples" target="_blank" rel="noopener">cpopp</a></li>
-		<li>My github adress <a href="https://github.com/tayfunulu" target="_blank" rel="noopener">tayfunulu</a></li>
+		<li>Wi-Fi Client for MicroPython GitHub from&nbsp;<a href="https://github.com/cpopp/MicroPythonSamples" target="_blank" rel="noopener">cpopp</a></li>
+		<li>My github address <a href="https://github.com/tayfunulu" target="_blank" rel="noopener">tayfunulu</a></li>
 		</ul>
 		</html>
 	"""
@@ -102,7 +102,7 @@ def handle_configure(client, request):
         response_footer = """
 		<html>
 		<center><br><br>
-		<h1 style="color: #5e9ca0; text-align: center;"><span style="color: #ff0000;">:) YES, Wi-Fi Configured to """ + ssid + """</span></h1>
+		<h1 style="color: #5e9ca0; text-align: center;"><span style="color: #ff0000;">ESP successfully connected to Wi-Fi network """ + ssid + """.</span></h1>
 		<br><br>"""
         send_response(client, response_footer)
         try:
