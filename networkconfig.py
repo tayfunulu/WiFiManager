@@ -13,24 +13,24 @@ ssid_password = "tayfunulu"
 server_socket = None
 
 
-def do_connect(ntwrk_ssid, netwrk_pass):
+def do_connect(ssid, password):
     sta_if = network.WLAN(network.STA_IF)
     sta_if.active(True)
-    if not sta_if.isconnected():
-        print('Trying to connect to %s...' % ntwrk_ssid)
-        sta_if.active(True)
-        sta_if.connect(ntwrk_ssid, netwrk_pass)
-        a = 0
-        while not sta_if.isconnected() | (a > 99):
-            time.sleep(0.1)
-            a += 1
-            print('.', end='')
-        if sta_if.isconnected():
-            print('\nConnected. Network config: ', sta_if.ifconfig())
-            return True
-        else:
-            print('\nFailed. Not Connected to: ' + ntwrk_ssid)
-            return False
+    if sta_if.isconnected():
+        return None
+    print('Trying to connect to %s...' % ssid)
+    sta_if.connect(ssid, password)
+    for retry in range(100):
+        connected = sta_if.isconnected()
+        if connected:
+            break
+        time.sleep(0.1)
+        print('.', end='')
+    if connected:
+        print('\nConnected. Network config: ', sta_if.ifconfig())
+    else:
+        print('\nFailed. Not Connected to: ' + ssid)
+    return connected
 
 
 def send_response(client, payload, status_code=200):
