@@ -6,7 +6,7 @@ import time
 wlan_ap = network.WLAN(network.AP_IF)
 wlan_sta = network.WLAN(network.STA_IF)
 
-# setup for ssid 
+# SSID/Password for setup
 ssid_name = "WifiManager"
 ssid_password = "tayfunulu"
 
@@ -17,7 +17,7 @@ def do_connect(ntwrk_ssid, netwrk_pass):
     sta_if = network.WLAN(network.STA_IF)
     sta_if.active(True)
     if not sta_if.isconnected():
-        print('try to connect : ' + ntwrk_ssid + ' network...')
+        print('Trying to connect to %s...' % ntwrk_ssid)
         sta_if.active(True)
         sta_if.connect(ntwrk_ssid, netwrk_pass)
         a = 0
@@ -26,10 +26,10 @@ def do_connect(ntwrk_ssid, netwrk_pass):
             a += 1
             print('.', end='')
         if sta_if.isconnected():
-            print('\nConnected. Network config:', sta_if.ifconfig())
+            print('\nConnected. Network config: ', sta_if.ifconfig())
             return (True)
         else:
-            print('\nProblem. Not Connected to :' + ntwrk_ssid)
+            print('\nFailed. Not Connected to: ' + ntwrk_ssid)
             return (False)
 
 
@@ -117,7 +117,6 @@ def handle_configure(client, request):
             fo = open("passwd.dat", "w")
             fo.write(ssid + ";" + password + "\n")
             fo.close()
-
         return (True)
     else:
         response_footer = """
@@ -163,9 +162,9 @@ def start(port=80):
     server_socket.bind(addr)
     server_socket.listen(1)
 
-    print('Connect to Wifi ssid :' + ssid_name + ' , Default pass: ' + ssid_password)
-    print('And connect to esp via your favorite web browser (like 192.168.4.1)')
-    print('listening on', addr)
+    print('Connect to WiFi ssid ' + ssid_name + ', default password: ' + ssid_password)
+    print('and access the ESP via your favorite web browser at 192.168.4.1.')
+    print('Listening on:', addr)
 
     while True:
 
