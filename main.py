@@ -18,17 +18,17 @@ def do_connect(ntwrk_ssid, netwrk_pass):
             print('.', end='')
         if sta_if.isconnected():
             print('\nConnected. Network config: ', sta_if.ifconfig())
-            return (True)
+            return True
         else:
             print('\nFailed. Not Connected to: ' + ntwrk_ssid)
-            return (False)
+            return False
 
 
 def check_connection():
     global wlan_sta
     # First check if there already is any connection:
     if wlan_sta.isconnected():
-        return (True)
+        return True
     try:
         # ESP connecting to WiFi takes time, wait a bit and try again:
         time.sleep(3)
@@ -48,20 +48,20 @@ def check_connection():
                     if ssid_list[0] in i[0]:
                         print("OK. WiFi found.")
                         if do_connect(ssid_list[0], ssid_list[1]):
-                            return (True)
+                            return True
 
             if not wlan_sta.isconnected():
                 if networkconfig.start():
-                    return (True)
+                    return True
         else:
-            return (True)
+            return True
 
     except OSError:
         # start web server for connection manager:
         if networkconfig.start():
-            return (True)
+            return True
 
-    return (False)
+    return False
 
 
 if check_connection():

@@ -27,10 +27,10 @@ def do_connect(ntwrk_ssid, netwrk_pass):
             print('.', end='')
         if sta_if.isconnected():
             print('\nConnected. Network config: ', sta_if.ifconfig())
-            return (True)
+            return True
         else:
             print('\nFailed. Not Connected to: ' + ntwrk_ssid)
-            return (False)
+            return False
 
 
 def send_response(client, payload, status_code=200):
@@ -85,7 +85,7 @@ def handle_configure(client, request):
 
     if match is None:
         send_response(client, "Parameters not found", status_code=400)
-        return (False)
+        return False
     # version 1.9 compatibility
     try:
         ssid = match.group(1).decode("utf-8").replace("%3F", "?").replace("%21", "!")
@@ -96,7 +96,7 @@ def handle_configure(client, request):
 
     if len(ssid) == 0:
         send_response(client, "SSID must be provided", status_code=400)
-        return (False)
+        return False
 
     if do_connect(ssid, password):
         response_footer = """
@@ -117,7 +117,7 @@ def handle_configure(client, request):
             fo = open("passwd.dat", "w")
             fo.write(ssid + ";" + password + "\n")
             fo.close()
-        return (True)
+        return True
     else:
         response_footer = """
 		<html>
@@ -129,7 +129,7 @@ def handle_configure(client, request):
 		</form></center></html>
 		"""
         send_response(client, response_footer)
-        return (False)
+        return False
 
 
 def handle_not_found(client, url):
@@ -170,7 +170,7 @@ def start(port=80):
 
         if wlan_sta.isconnected():
             client.close
-            return (True)
+            return True
 
         client, addr = server_socket.accept()
         client.settimeout(5.0)
@@ -179,7 +179,7 @@ def start(port=80):
 
         request = b""
         try:
-            while not "\r\n\r\n" in request:
+            while "\r\n\r\n" not in request:
                 request += client.recv(512)
         except OSError:
             pass
