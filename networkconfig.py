@@ -3,17 +3,63 @@ import socket
 import ure
 import time
 
-wlan_ap = network.WLAN(network.AP_IF)
-wlan_sta = network.WLAN(network.STA_IF)
-
 # SSID/Password for setup
 ssid_name = "WifiManager"
 ssid_password = "tayfunulu"
 
-server_socket = None
-
 # list of WiFi networks (CSV format: ssid,password)
 NETWORK_PROFILES = 'passwd.dat'
+
+wlan_ap = network.WLAN(network.AP_IF)
+wlan_sta = network.WLAN(network.STA_IF)
+
+server_socket = None
+
+
+def check_connection():
+    global wlan_sta
+
+    # First check if there already is any connection:
+    if wlan_sta.isconnected():
+        return wlan_sta
+
+    connected = False
+    try:
+        # ESP connecting to WiFi takes time, wait a bit and try again:
+        time.sleep(3)
+        if wlan_sta.isconnected():
+            return wlan_sta
+
+        # Read known network profiles from file
+        profiles = read_profiles()
+
+        # Search WiFis in range
+        networks = wlan_sta.scan()
+
+        AUTHMODE = {0: "open", 1: "WEP", 2: "WPA-PSK", 3: "WPA2-PSK", 4: "WPA/WPA2-PSK"}
+        for ssid, bssid, channel, rssi, authmode, hidden in sorted(networks, key=lambda x: x[3], reverse=True):
+            ssid = ssid.decode('utf-8')
+            encrypted = authmode > 0
+            print("ssid: %s chan: %d rssi: %d authmode: %s" % (ssid, channel, rssi, AUTHMODE.get(authmode, '?')))
+            if encrypted:
+                if ssid in profiles:
+                    password = profiles[ssid]
+                    connected = do_connect(ssid, password)
+                else:
+                    print("skipping unknown encrypted network")
+            else:  # open
+                connected = do_connect(ssid, None)
+            if connected:
+                break
+
+    except OSError:
+        pass
+
+    # start web server for connection manager:
+    if not connected:
+        connected = start()
+
+    return wlan_sta if connected else None
 
 
 def read_profiles():
@@ -35,20 +81,20 @@ def write_profiles(profiles):
 
 
 def do_connect(ssid, password):
-    sta_if = network.WLAN(network.STA_IF)
-    sta_if.active(True)
-    if sta_if.isconnected():
+    global wlan_sta
+    wlan_sta.active(True)
+    if wlan_sta.isconnected():
         return None
     print('Trying to connect to %s...' % ssid)
-    sta_if.connect(ssid, password)
+    wlan_sta.connect(ssid, password)
     for retry in range(100):
-        connected = sta_if.isconnected()
+        connected = wlan_sta.isconnected()
         if connected:
             break
         time.sleep(0.1)
         print('.', end='')
     if connected:
-        print('\nConnected. Network config: ', sta_if.ifconfig())
+        print('\nConnected. Network config: ', wlan_sta.ifconfig())
     else:
         print('\nFailed. Not Connected to: ' + ssid)
     return connected
