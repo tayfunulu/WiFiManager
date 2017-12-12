@@ -33,6 +33,7 @@ def get_connection():
         profiles = read_profiles()
 
         # Search WiFis in range
+        wlan_sta.active(True)
         networks = wlan_sta.scan()
 
         AUTHMODE = {0: "open", 1: "WEP", 2: "WPA-PSK", 3: "WPA2-PSK", 4: "WPA/WPA2-PSK"}
@@ -51,8 +52,8 @@ def get_connection():
             if connected:
                 break
 
-    except OSError:
-        pass
+    except OSError as e:
+        print("exception", str(e))
 
     # start web server for connection manager:
     if not connected:
