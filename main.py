@@ -1,7 +1,7 @@
 import networkconfig
 
 
-wlan = networkconfig.check_connection()
+wlan = networkconfig.get_connection()
 if wlan is None:
     print("Could not initialize the network connection.")
     while True:

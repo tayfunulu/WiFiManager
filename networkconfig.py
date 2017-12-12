@@ -16,7 +16,8 @@ wlan_sta = network.WLAN(network.STA_IF)
 server_socket = None
 
 
-def check_connection():
+def get_connection():
+    """return a working WLAN(STA_IF) instance or None"""
     global wlan_sta
 
     # First check if there already is any connection:
