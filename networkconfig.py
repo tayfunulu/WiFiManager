@@ -7,8 +7,7 @@ import time
 ssid_name = "WifiManager"
 ssid_password = "tayfunulu"
 
-# list of WiFi networks (CSV format: ssid,password)
-NETWORK_PROFILES = 'passwd.dat'
+NETWORK_PROFILES = 'wifi.dat'
 
 wlan_ap = network.WLAN(network.AP_IF)
 wlan_sta = network.WLAN(network.STA_IF)
