@@ -199,6 +199,7 @@ def stop():
 
     if server_socket:
         server_socket.close()
+        server_socket = None
 
 
 def start(port=80):
@@ -227,39 +228,38 @@ def start(port=80):
     while True:
 
         if wlan_sta.isconnected():
-            client.close
             return True
 
         client, addr = server_socket.accept()
-        client.settimeout(5.0)
-
         print('client connected from', addr)
-
-        request = b""
         try:
-            while "\r\n\r\n" not in request:
-                request += client.recv(512)
-        except OSError:
-            pass
+            client.settimeout(5.0)
 
-        print("Request is: {}".format(request))
-        if "HTTP" not in request:
-            # skip invalid requests
+            request = b""
+            try:
+                while "\r\n\r\n" not in request:
+                    request += client.recv(512)
+            except OSError:
+                pass
+
+            print("Request is: {}".format(request))
+            if "HTTP" not in request:
+                # skip invalid requests
+                continue
+
+            # version 1.9 compatibility
+            try:
+                url = ure.search("(?:GET|POST) /(.*?)(?:\\?.*?)? HTTP", request).group(1).decode("utf-8").rstrip("/")
+            except:
+                url = ure.search("(?:GET|POST) /(.*?)(?:\\?.*?)? HTTP", request).group(1).rstrip("/")
+            print("URL is {}".format(url))
+
+            if url == "":
+                handle_root(client)
+            elif url == "configure":
+                handle_configure(client, request)
+            else:
+                handle_not_found(client, url)
+
+        finally:
             client.close()
-            continue
-
-        # version 1.9 compatibility
-        try:
-            url = ure.search("(?:GET|POST) /(.*?)(?:\\?.*?)? HTTP", request).group(1).decode("utf-8").rstrip("/")
-        except:
-            url = ure.search("(?:GET|POST) /(.*?)(?:\\?.*?)? HTTP", request).group(1).rstrip("/")
-        print("URL is {}".format(url))
-
-        if url == "":
-            handle_root(client)
-        elif url == "configure":
-            handle_configure(client, request)
-        else:
-            handle_not_found(client, url)
-
-        client.close()
