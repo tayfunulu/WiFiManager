@@ -3,9 +3,9 @@ import socket
 import ure
 import time
 
-# SSID/Password for setup
-ssid_name = "WifiManager"
-ssid_password = "tayfunulu"
+ap_ssid = "WifiManager"
+ap_password = "tayfunulu"
+ap_authmode = 3  # WPA2
 
 NETWORK_PROFILES = 'wifi.dat'
 
@@ -17,7 +17,6 @@ server_socket = None
 
 def get_connection():
     """return a working WLAN(STA_IF) instance or None"""
-    global wlan_sta
 
     # First check if there already is any connection:
     if wlan_sta.isconnected():
@@ -81,7 +80,6 @@ def write_profiles(profiles):
 
 
 def do_connect(ssid, password):
-    global wlan_sta
     wlan_sta.active(True)
     if wlan_sta.isconnected():
         return None
@@ -111,7 +109,6 @@ def send_response(client, payload, status_code=200):
 
 
 def handle_root(client):
-    global wlan_sta
     wlan_sta.active(True)
     ssids = sorted(ssid.decode('utf-8') for ssid, *_ in wlan_sta.scan())
 
@@ -249,25 +246,22 @@ def stop():
 
 
 def start(port=80):
+    global server_socket
+
     addr = socket.getaddrinfo('0.0.0.0', port)[0][-1]
 
-    global server_socket
-    global wlan_sta
-    global wlan_ap
-    global ssid_name
-    global ssid_password
     stop()
 
     wlan_sta.active(True)
     wlan_ap.active(True)
 
-    wlan_ap.config(essid=ssid_name, password=ssid_password, authmode=3)  # WPA2
+    wlan_ap.config(essid=ap_ssid, password=ap_password, authmode=ap_authmode)
 
     server_socket = socket.socket()
     server_socket.bind(addr)
     server_socket.listen(1)
 
-    print('Connect to WiFi ssid ' + ssid_name + ', default password: ' + ssid_password)
+    print('Connect to WiFi ssid ' + ap_ssid + ', default password: ' + ap_password)
     print('and access the ESP via your favorite web browser at 192.168.4.1.')
     print('Listening on:', addr)
 
