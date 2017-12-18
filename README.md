@@ -13,13 +13,13 @@ Tested : 1.8 and 1.9.2 (updated)
 
 <b>Usage:</b>
 
-Upload main.py and networkconfig.py to ESP. 
+Upload main.py and wifimgr.py to ESP. 
 Write your code into main.py or import it from main.py. 
 
 <b>Logic:</b>
 1. step: Check "wifi.dat" file and try saved networks/passwords.
 2. step: Publish web page to configure new wifi. 
-3. step: Save network/password to passwd.dat file. 
+3. step: Save network/password to "wifi.dat" file. 
 4. step: Run user code.
 
 ![alt text](https://github.com/tayfunulu/WiFiManager/blob/master/WiFi_Manager.png)
