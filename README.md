@@ -1,9 +1,9 @@
 # WiFi Manager
 
 Lang   : Micropython 
-Tested : 1.8 and 1.9.2 (updated)
+Tested : 1.8 and 1.9.3
 
-<b>Description</b> : WiFi manager for ESP8266 - ESP12 for micropython 
+<b>Description</b> : WiFi manager for ESP8266 - ESP12 - ESP32 for micropython 
 
 <b>Main Features:</b>
 
@@ -24,4 +24,4 @@ Write your code into main.py or import it from main.py.
 
 ![alt text](https://github.com/tayfunulu/WiFiManager/blob/master/WiFi_Manager.png)
 
-**networkconfig.py based on code of CPOPP - https://github.com/cpopp/MicroPythonSamples
+**web server based on code of CPOPP - https://github.com/cpopp/MicroPythonSamples
