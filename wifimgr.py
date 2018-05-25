@@ -3,7 +3,6 @@ import socket
 import ure
 import time
 
-
 ap_ssid = "WifiManager"
 ap_password = "tayfunulu"
 ap_authmode = 3  # WPA2
@@ -105,25 +104,21 @@ def send_header(client, status_code=200, content_length=None ):
     client.sendall("Content-Type: text/html\r\n")
     if content_length is not None:
       client.sendall("Content-Length: {}\r\n".format(content_length))
-
     client.sendall("\r\n")
+
 
 def send_response(client, payload, status_code=200):
     content_length = len(payload)
-
     send_header(client, status_code, content_length)
-
     if content_length > 0:
         client.sendall(payload)
-
     client.close()
+
 
 def handle_root(client):
     wlan_sta.active(True)
     ssids = sorted(ssid.decode('utf-8') for ssid, *_ in wlan_sta.scan())
-
     send_header(client)
-
     client.sendall("""\
         <html>
             <h1 style="color: #5e9ca0; text-align: center;">
@@ -135,10 +130,8 @@ def handle_root(client):
                 <table style="margin-left: auto; margin-right: auto;">
                     <tbody>
     """)
-
     while len(ssids):
         ssid = ssids.pop(0)
-
         client.sendall("""\
                         <tr>
                             <td colspan="2">
@@ -146,7 +139,6 @@ def handle_root(client):
                             </td>
                         </tr>
         """.format(ssid))
-
     client.sendall("""\
                         <tr>
                             <td>Password:</td>
@@ -183,12 +175,11 @@ def handle_root(client):
             </ul>
         </html>
     """ % dict(filename=NETWORK_PROFILES))
-
     client.close()
+
 
 def handle_configure(client, request):
     match = ure.search("ssid=([^&]*)&password=(.*)", request)
-
     if match is None:
         send_response(client, "Parameters not found", status_code=400)
         return False
@@ -199,11 +190,9 @@ def handle_configure(client, request):
     except:
         ssid = match.group(1).replace("%3F", "?").replace("%21", "!")
         password = match.group(2).replace("%3F", "?").replace("%21", "!")
-
     if len(ssid) == 0:
         send_response(client, "SSID must be provided", status_code=400)
         return False
-
     if do_connect(ssid, password):
         response = """\
             <html>
@@ -252,7 +241,6 @@ def handle_not_found(client, url):
 
 def stop():
     global server_socket
-
     if server_socket:
         server_socket.close()
         server_socket = None
@@ -260,59 +248,46 @@ def stop():
 
 def start(port=80):
     global server_socket
-
     addr = socket.getaddrinfo('0.0.0.0', port)[0][-1]
-
     stop()
-
     wlan_sta.active(True)
     wlan_ap.active(True)
-
     wlan_ap.config(essid=ap_ssid, password=ap_password, authmode=ap_authmode)
-
     server_socket = socket.socket()
     server_socket.bind(addr)
     server_socket.listen(1)
-
     print('Connect to WiFi ssid ' + ap_ssid + ', default password: ' + ap_password)
     print('and access the ESP via your favorite web browser at 192.168.4.1.')
     print('Listening on:', addr)
-
     while True:
-
         if wlan_sta.isconnected():
             return True
-
         client, addr = server_socket.accept()
         print('client connected from', addr)
         try:
             client.settimeout(5.0)
-
             request = b""
             try:
                 while "\r\n\r\n" not in request:
                     request += client.recv(512)
             except OSError:
                 pass
-
             print("Request is: {}".format(request))
             if "HTTP" not in request:
                 # skip invalid requests
                 continue
-
             # version 1.9 compatibility
             try:
                 url = ure.search("(?:GET|POST) /(.*?)(?:\\?.*?)? HTTP", request).group(1).decode("utf-8").rstrip("/")
             except:
                 url = ure.search("(?:GET|POST) /(.*?)(?:\\?.*?)? HTTP", request).group(1).rstrip("/")
             print("URL is {}".format(url))
-
             if url == "":
                 handle_root(client)
             elif url == "configure":
                 handle_configure(client, request)
             else:
                 handle_not_found(client, url)
-
         finally:
             client.close()
+            
