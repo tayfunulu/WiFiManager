@@ -3,6 +3,7 @@ import socket
 import ure
 import time
 
+
 ap_ssid = "WifiManager"
 ap_password = "tayfunulu"
 ap_authmode = 3  # WPA2
@@ -99,22 +100,31 @@ def do_connect(ssid, password):
     return connected
 
 
-def send_response(client, payload, status_code=200):
+def send_header(client, status_code=200, content_length=None ):
     client.sendall("HTTP/1.0 {} OK\r\n".format(status_code))
     client.sendall("Content-Type: text/html\r\n")
-    client.sendall("Content-Length: {}\r\n".format(len(payload)))
+    if content_length is not None:
+      client.sendall("Content-Length: {}\r\n".format(content_length))
+
     client.sendall("\r\n")
 
-    if len(payload) > 0:
+def send_response(client, payload, status_code=200):
+    content_length = len(payload)
+
+    send_header(client, status_code, content_length)
+
+    if content_length > 0:
         client.sendall(payload)
 
+    client.close()
 
 def handle_root(client):
     wlan_sta.active(True)
     ssids = sorted(ssid.decode('utf-8') for ssid, *_ in wlan_sta.scan())
 
-    response = []
-    response.append("""\
+    send_header(client)
+
+    client.sendall("""\
         <html>
             <h1 style="color: #5e9ca0; text-align: center;">
                 <span style="color: #ff0000;">
@@ -126,8 +136,10 @@ def handle_root(client):
                     <tbody>
     """)
 
-    for ssid in ssids:
-        response.append("""\
+    while len(ssids):
+        ssid = ssids.pop(0)
+
+        client.sendall("""\
                         <tr>
                             <td colspan="2">
                                 <input type="radio" name="ssid" value="{0}" />{0}
@@ -135,7 +147,7 @@ def handle_root(client):
                         </tr>
         """.format(ssid))
 
-    response.append("""\
+    client.sendall("""\
                         <tr>
                             <td>Password:</td>
                             <td><input name="password" type="password" /></td>
@@ -171,8 +183,8 @@ def handle_root(client):
             </ul>
         </html>
     """ % dict(filename=NETWORK_PROFILES))
-    send_response(client, "\n".join(response))
 
+    client.close()
 
 def handle_configure(client, request):
     match = ure.search("ssid=([^&]*)&password=(.*)", request)
