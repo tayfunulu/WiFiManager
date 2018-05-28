@@ -180,6 +180,7 @@ def handle_root(client):
 
 def handle_configure(client, request):
     match = ure.search("ssid=([^&]*)&password=(.*)", request)
+
     if match is None:
         send_response(client, "Parameters not found", status_code=400)
         return False
@@ -187,12 +188,14 @@ def handle_configure(client, request):
     try:
         ssid = match.group(1).decode("utf-8").replace("%3F", "?").replace("%21", "!")
         password = match.group(2).decode("utf-8").replace("%3F", "?").replace("%21", "!")
-    except:
+    except Exception:
         ssid = match.group(1).replace("%3F", "?").replace("%21", "!")
         password = match.group(2).replace("%3F", "?").replace("%21", "!")
+
     if len(ssid) == 0:
         send_response(client, "SSID must be provided", status_code=400)
         return False
+
     if do_connect(ssid, password):
         response = """\
             <html>
@@ -241,6 +244,7 @@ def handle_not_found(client, url):
 
 def stop():
     global server_socket
+
     if server_socket:
         server_socket.close()
         server_socket = None
@@ -248,46 +252,57 @@ def stop():
 
 def start(port=80):
     global server_socket
+
     addr = socket.getaddrinfo('0.0.0.0', port)[0][-1]
+
     stop()
+
     wlan_sta.active(True)
     wlan_ap.active(True)
+
     wlan_ap.config(essid=ap_ssid, password=ap_password, authmode=ap_authmode)
+
     server_socket = socket.socket()
     server_socket.bind(addr)
     server_socket.listen(1)
+
     print('Connect to WiFi ssid ' + ap_ssid + ', default password: ' + ap_password)
     print('and access the ESP via your favorite web browser at 192.168.4.1.')
     print('Listening on:', addr)
+
     while True:
         if wlan_sta.isconnected():
             return True
+
         client, addr = server_socket.accept()
         print('client connected from', addr)
         try:
             client.settimeout(5.0)
+
             request = b""
             try:
                 while "\r\n\r\n" not in request:
                     request += client.recv(512)
             except OSError:
                 pass
+
             print("Request is: {}".format(request))
-            if "HTTP" not in request:
-                # skip invalid requests
+            if "HTTP" not in request:  # skip invalid requests
                 continue
+
             # version 1.9 compatibility
             try:
                 url = ure.search("(?:GET|POST) /(.*?)(?:\\?.*?)? HTTP", request).group(1).decode("utf-8").rstrip("/")
-            except:
+            except Exception:
                 url = ure.search("(?:GET|POST) /(.*?)(?:\\?.*?)? HTTP", request).group(1).rstrip("/")
             print("URL is {}".format(url))
+
             if url == "":
                 handle_root(client)
             elif url == "configure":
                 handle_configure(client, request)
             else:
                 handle_not_found(client, url)
+
         finally:
             client.close()
-            
