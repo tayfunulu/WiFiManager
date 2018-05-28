@@ -6,6 +6,7 @@ import time
 ap_ssid = "WifiManager"
 ap_password = "tayfunulu"
 ap_authmode = 3  # WPA2
+linkToNextWebinterface = True
 
 NETWORK_PROFILES = 'wifi.dat'
 
@@ -202,11 +203,19 @@ def handle_configure(client, request):
                         <span style="color: #ff0000;">
                             ESP successfully connected to WiFi network %(ssid)s.
                         </span>
-                    </h1>
+                    </h1>""" % dict(ssid=ssid)
+        if linkToNextWebinterface:
+            response += """\
+                    <p style="text-align: center;">
+                        <a href="http://%(ip)/">To new Interface</a><br>
+                        (You must be connected to the set network to follow this Link)
+                    </p>
+                    """ % dict(ip=wlan_sta.ifconfig()[0])
+        response += """\
                     <br><br>
                 </center>
             </html>
-        """ % dict(ssid=ssid)
+        """
         send_response(client, response)
         try:
             profiles = read_profiles()
