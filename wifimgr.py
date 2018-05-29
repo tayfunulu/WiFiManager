@@ -15,6 +15,17 @@ wlan_sta = network.WLAN(network.STA_IF)
 server_socket = None
 
 
+def _unquote(s):
+    r = s.replace('+', ' ').split('%')
+    for i in range(1, len(r)):
+        s = r[i]
+        try:
+            r[i] = chr(int(s[:2], 16)) + s[2:]
+        except Exception:
+            r[i] = '%' + s
+    return ''.join(r)
+
+
 def get_connection():
     """return a working WLAN(STA_IF) instance or None"""
 
@@ -185,11 +196,11 @@ def handle_configure(client, request):
         return False
     # version 1.9 compatibility
     try:
-        ssid = match.group(1).decode("utf-8").replace("%3F", "?").replace("%21", "!")
-        password = match.group(2).decode("utf-8").replace("%3F", "?").replace("%21", "!")
+        ssid = _unquote(match.group(1).decode("utf-8").replace("%3F", "?").replace("%21", "!"))
+        password = _unquote(match.group(2).decode("utf-8").replace("%3F", "?").replace("%21", "!"))
     except:
-        ssid = match.group(1).replace("%3F", "?").replace("%21", "!")
-        password = match.group(2).replace("%3F", "?").replace("%21", "!")
+        ssid = _unquote(match.group(1).replace("%3F", "?").replace("%21", "!"))
+        password = _unquote(match.group(2).replace("%3F", "?").replace("%21", "!"))
     if len(ssid) == 0:
         send_response(client, "SSID must be provided", status_code=400)
         return False
@@ -266,16 +277,31 @@ def start(port=80):
         print('client connected from', addr)
         try:
             client.settimeout(5.0)
-            request = b""
+            request = bytearray(b"")
             try:
                 while "\r\n\r\n" not in request:
-                    request += client.recv(512)
+                    request.extend(client.recv(512))
             except OSError:
                 pass
-            print("Request is: {}".format(request))
+
             if "HTTP" not in request:
                 # skip invalid requests
                 continue
+
+            if "POST" in request and "Content-Length: " in request:
+                content_length = int(ure.search("Content-Length: ([0-9]+)?", bytes(request)).group(1))
+                content = request[bytes(request).index(b"\r\n\r\n") + 4:]
+                content_length_remaining = content_length - len(content)
+
+                while content_length_remaining > 0:
+                    chunk = client.recv(512)
+                    request.extend(chunk)
+                    content_length_remaining -= len(chunk)
+
+            request = bytes(request)
+
+            print("Request is: {}".format(request))
+
             # version 1.9 compatibility
             try:
                 url = ure.search("(?:GET|POST) /(.*?)(?:\\?.*?)? HTTP", request).group(1).decode("utf-8").rstrip("/")
