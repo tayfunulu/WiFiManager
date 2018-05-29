@@ -239,7 +239,8 @@ def handle_configure(client, request):
 
 
 def handle_not_found(client, url):
-    send_response(client, "", status_code=307, redirect='/')
+    send_header(client, status_code=307, redirect='/')
+    client.close()
 
 
 def stop():
