@@ -214,6 +214,9 @@ def handle_configure(client, request):
             profiles = {}
         profiles[ssid] = password
         write_profiles(profiles)
+
+        time.sleep(5)
+
         return True
     else:
         response = """\
@@ -290,4 +293,3 @@ def start(port=80):
                 handle_not_found(client, url)
         finally:
             client.close()
-            
