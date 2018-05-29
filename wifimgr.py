@@ -239,7 +239,10 @@ def handle_configure(client, request):
 
 
 def handle_not_found(client, url):
-    send_header(client, status_code=307, redirect='/')
+    if 'favicon' in url:
+        send_header(client, status_code=404)
+    else:
+        send_header(client, status_code=307, redirect='/')
     client.close()
 
 
