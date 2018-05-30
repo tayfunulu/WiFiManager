@@ -48,8 +48,7 @@ def get_connection():
                     connected = do_connect(ssid, password)
                 else:
                     print("skipping unknown encrypted network")
-            else:  # open
-                if connect_to_open_wifis:
+            elif connect_to_open_wifis:
                     connected = do_connect(ssid, None)
             if connected:
                 break
