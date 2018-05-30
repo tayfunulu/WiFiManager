@@ -189,8 +189,8 @@ def handle_root(client):
     client.close()
 
 
-def handle_configure(client, request):
-    match = ure.search("ssid=([^&]*)&password=(.*)", request)
+def handle_configure(client, content):
+    match = ure.search("ssid=([^&]*)&password=(.*)", content)
 
     if match is None:
         send_response(client, "Parameters not found", status_code=400)
@@ -304,12 +304,12 @@ def start(port=80):
 
             if "POST" in request and "Content-Length: " in request:
                 content_length = int(ure.search("Content-Length: ([0-9]+)?", bytes(request)).group(1))
-                content = request[bytes(request).index(b"\r\n\r\n") + 4:]
+                content = bytearray(request[bytes(request).index(b"\r\n\r\n") + 4:])
                 content_length_remaining = content_length - len(content)
 
                 while content_length_remaining > 0:
                     chunk = client.recv(512)
-                    request.extend(chunk)
+                    content.extend(chunk)
                     content_length_remaining -= len(chunk)
 
             request = bytes(request)
@@ -326,7 +326,7 @@ def start(port=80):
             if url == "":
                 handle_root(client)
             elif url == "configure":
-                handle_configure(client, request)
+                handle_configure(client, bytes(content))
             else:
                 handle_not_found(client, url)
 
