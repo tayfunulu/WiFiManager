@@ -207,7 +207,7 @@ def handle_configure(client, request):
         if link_to_next_webui:
             response += """\
                     <p style="text-align: center;">
-                        <a href="http://%(ip)/">To new Interface</a><br>
+                        <a href="http://%(ip)s/">To new Interface</a><br>
                         (You must be connected to the set network to follow this Link)
                     </p>
                     """ % dict(ip=wlan_sta.ifconfig()[0])
@@ -299,4 +299,3 @@ def start(port=80):
                 handle_not_found(client, url)
         finally:
             client.close()
-            
