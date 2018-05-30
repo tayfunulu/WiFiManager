@@ -291,7 +291,7 @@ def start(port=80):
         print('client connected from', addr)
         try:
             client.settimeout(5.0)
-            request = bytearray(b"")
+            request = bytearray()
             try:
                 while "\r\n\r\n" not in request:
                     request.extend(client.recv(512))
