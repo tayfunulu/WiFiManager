@@ -21,7 +21,7 @@ def _unquote(s):
         s = r[i]
         try:
             r[i] = chr(int(s[:2], 16)) + s[2:]
-        except Exception:
+        except ValueError:
             r[i] = '%' + s
     return ''.join(r)
 
