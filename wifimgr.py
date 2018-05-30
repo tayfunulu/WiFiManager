@@ -197,11 +197,11 @@ def handle_configure(client, request):
         return False
     # version 1.9 compatibility
     try:
-        ssid = _unquote(match.group(1).decode("utf-8").replace("%3F", "?").replace("%21", "!"))
-        password = _unquote(match.group(2).decode("utf-8").replace("%3F", "?").replace("%21", "!"))
+        ssid = _unquote(match.group(1).decode("utf-8"))
+        password = _unquote(match.group(2).decode("utf-8"))
     except:
-        ssid = _unquote(match.group(1).replace("%3F", "?").replace("%21", "!"))
-        password = _unquote(match.group(2).replace("%3F", "?").replace("%21", "!"))
+        ssid = _unquote(match.group(1))
+        password = _unquote(match.group(2))
     if len(ssid) == 0:
         send_response(client, "SSID must be provided", status_code=400)
         return False
