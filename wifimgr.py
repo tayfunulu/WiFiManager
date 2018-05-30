@@ -6,7 +6,7 @@ import time
 ap_ssid = "WifiManager"
 ap_password = "tayfunulu"
 ap_authmode = 3  # WPA2
-linkToNextWebinterface = True
+link_to_next_webui = True
 
 NETWORK_PROFILES = 'wifi.dat'
 
@@ -204,7 +204,7 @@ def handle_configure(client, request):
                             ESP successfully connected to WiFi network %(ssid)s.
                         </span>
                     </h1>""" % dict(ssid=ssid)
-        if linkToNextWebinterface:
+        if link_to_next_webui:
             response += """\
                     <p style="text-align: center;">
                         <a href="http://%(ip)/">To new Interface</a><br>
