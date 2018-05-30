@@ -238,12 +238,12 @@ def handle_root(client):
     while len(ssids):
         ssid = ssids.pop(0)
         client.sendall("""\
-                        <a onclick="document.getElementById('ssid').value = '{0}';" href="javascript:void(0)">
+                        <a onclick="document.getElementById('ssid').value = '{ssid}';" href="javascript:void(0)">
                             <li>
-                                {0}
+                                {ssid}
                             </li>
                         </a>
-        """.format(ssid))
+        """.format(ssid=ssid))
     client.sendall("""\
                         <li onclick="document.getElementById('ssid').focus()">
                             <span class="fixedWidth">SSID</span>
@@ -262,7 +262,7 @@ def handle_root(client):
                         Infos:
                     </h2>
                     <p>
-                        Your ssid and password information will be saved into the "{}" file in your ESP module for future usage. Be careful about security!
+                        Your ssid and password information will be saved into the "{filename}" file in your ESP module for future usage. Be careful about security!
                     </p>
                     <p>
                         Original code from <a href="https://github.com/cpopp/MicroPythonSamples" target="_blank" rel="noopener">cpopp/MicroPythonSamples</a>.
@@ -273,7 +273,7 @@ def handle_root(client):
                 </form>
             </body>
         </html>
-    """.format(NETWORK_PROFILES))
+    """.format(filename=NETWORK_PROFILES))
     client.close()
 
 
@@ -298,14 +298,14 @@ def handle_configure(client, request):
     if do_connect(ssid, password):
         response = """\
             <html>
-                {}
+                {html_head}
                 <body>
                     <h1>
-                        ESP successfully connected to WiFi network "<span class="monospace">{}</span>"
+                        ESP successfully connected to WiFi network "<span class="monospace">{ssid}</span>"
                     </h1>
                 </body>
             </html>
-        """.format(html_head, ssid)
+        """.format(html_head=html_head, ssid=ssid)
         send_response(client, response)
         try:
             profiles = read_profiles()
@@ -320,15 +320,15 @@ def handle_configure(client, request):
     else:
         response = """\
             <html>
-                {}
+                {html_head}
                 <body>
                     <h1>
-                        ESP could not connect to WiFi network "<span class="monospace">{}</span>"
+                        ESP could not connect to WiFi network "<span class="monospace">{ssid}</span>"
                     </h1>
                     <button onclick="history.back()">Go back</button>
                 </body>
             </html>
-        """.format(html_head, ssid)
+        """.format(html_head=html_head, ssid=ssid)
         send_response(client, response)
         return False
 
