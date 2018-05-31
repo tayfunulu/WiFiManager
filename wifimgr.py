@@ -15,7 +15,7 @@ wlan_sta = network.WLAN(network.STA_IF)
 server_socket = None
 
 
-def _unquote(s):
+def unquote_plus(s):
     r = s.replace('+', ' ').split('%')
     for i in range(1, len(r)):
         s = r[i]
@@ -197,11 +197,11 @@ def handle_configure(client, content):
         return False
     # version 1.9 compatibility
     try:
-        ssid = _unquote(match.group(1).decode("utf-8"))
-        password = _unquote(match.group(2).decode("utf-8"))
+        ssid = unquote_plus(match.group(1).decode("utf-8"))
+        password = unquote_plus(match.group(2).decode("utf-8"))
     except:
-        ssid = _unquote(match.group(1))
-        password = _unquote(match.group(2))
+        ssid = unquote_plus(match.group(1))
+        password = unquote_plus(match.group(2))
     if len(ssid) == 0:
         send_response(client, "SSID must be provided", status_code=400)
         return False
