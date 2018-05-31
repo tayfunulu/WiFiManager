@@ -204,13 +204,13 @@ def handle_configure(client, request):
                     <br><br>
                     <h1 style="color: #5e9ca0; text-align: center;">
                         <span style="color: #ff0000;">
-                            ESP successfully connected to WiFi network %(ssid)s.
+                            ESP successfully connected to WiFi network %(ssid)s with IP %(ip)s.
                         </span>
-                    </h1>""" % dict(ssid=ssid)
+                    </h1>""" % dict(ssid=ssid, ip=wlan_sta.ifconfig()[0])
         if link_to_next_webui:
             response += """\
                     <p style="text-align: center;">
-                        <a href="http://%(ip)s/">To new Interface [%(ip)s]</a><br>
+                        <a href="http://%(ip)s/">To new Interface</a><br>
                         (You must be connected to the set network to follow this Link)
                     </p>
                     """ % dict(ip=wlan_sta.ifconfig()[0])
