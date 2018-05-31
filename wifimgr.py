@@ -60,7 +60,7 @@ html_head = """
                 margin: 10px auto;
             }
 
-            h3 {
+            h2 {
                 margin: 10px 0px -10px 0px;
             }
 
@@ -230,9 +230,9 @@ def handle_root(client):
                     <h1>
                         Wi-Fi Client Setup
                     </h1>
-                    <h3>
+                    <h2>
                         SSIDs (click to select)
-                    </h3>
+                    </h2>
                     <ul>
     """)
     while len(ssids):
