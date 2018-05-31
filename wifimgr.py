@@ -6,6 +6,9 @@ import time
 ap_ssid = "WifiManager"
 ap_password = "tayfunulu"
 ap_authmode = 3  # WPA2
+
+# If `link_to_next_webui` is set to `True` on the successfully connected page there is a link to the IP of the ESP in the newly connected WiFi.
+# This is useful if the ESP shows an other web interface after the WiFiManager, because the user can just click the link and doesn't have to search the new IP of the ESP.
 link_to_next_webui = True
 
 NETWORK_PROFILES = 'wifi.dat'
