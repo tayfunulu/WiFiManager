@@ -199,7 +199,7 @@ def handle_configure(client, content):
     try:
         ssid = unquote_plus(match.group(1).decode("utf-8"))
         password = unquote_plus(match.group(2).decode("utf-8"))
-    except:
+    except UnicodeEncodeError:
         ssid = unquote_plus(match.group(1))
         password = unquote_plus(match.group(2))
     if len(ssid) == 0:
