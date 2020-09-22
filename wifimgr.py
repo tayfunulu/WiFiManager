@@ -289,6 +289,13 @@ def start(port=80):
             except OSError:
                 pass
 
+            # Handle form data from Safari on macOS and iOS; it sends \r\n\r\nssid=<ssid>&password=<password>
+            try:
+                request += client.recv(512)
+                print("Received form data after \\r\\n\\r\\n(i.e. from Safari on macOS or iOS)")
+            except OSError:
+                pass
+
             print("Request is: {}".format(request))
             if "HTTP" not in request:  # skip invalid requests
                 continue
