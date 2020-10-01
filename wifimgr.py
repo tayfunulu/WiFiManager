@@ -275,6 +275,8 @@ def start(port=80):
 
     while True:
         if wlan_sta.isconnected():
+            # stop AP mode to save energy
+            wlan_ap.active(False)
             return True
 
         client, addr = server_socket.accept()
