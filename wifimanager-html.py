@@ -36,11 +36,13 @@ def get_connection():
         wlan_sta.active(True)
         networks = wlan_sta.scan()
 
-        AUTHMODE = {0: "open", 1: "WEP", 2: "WPA-PSK", 3: "WPA2-PSK", 4: "WPA/WPA2-PSK"}
+        AUTHMODE = {0: "open", 1: "WEP", 2: "WPA-PSK",
+                    3: "WPA2-PSK", 4: "WPA/WPA2-PSK"}
         for ssid, bssid, channel, rssi, authmode, hidden in sorted(networks, key=lambda x: x[3], reverse=True):
             ssid = ssid.decode('utf-8')
             encrypted = authmode > 0
-            print("ssid: %s chan: %d rssi: %d authmode: %s" % (ssid, channel, rssi, AUTHMODE.get(authmode, '?')))
+            print("ssid: %s chan: %d rssi: %d authmode: %s" %
+                (ssid, channel, rssi, AUTHMODE.get(authmode, '?')))
             if encrypted:
                 if ssid in profiles:
                     password = profiles[ssid]
@@ -93,13 +95,14 @@ def do_connect(ssid, password):
         time.sleep(0.1)
         print('.', end='')
     if connected:
-        print('\nConnected. Network config: ', wlan_sta.ifconfig())
+        print('\nConnected. Network config: ', wlan_sta.ifconfig()[0])
     else:
+        wlan_sta.disconnect()
         print('\nFailed. Not Connected to: ' + ssid)
     return connected
 
 
-def send_header(client, status_code=200, content_length=None ):
+def send_header(client, status_code=200, content_length=None):
     client.sendall("HTTP/1.0 {} OK\r\n".format(status_code))
     client.sendall("Content-Type: text/html\r\n")
     if content_length is not None:
@@ -135,7 +138,7 @@ def handle_root(client):
         client.sendall("""\
                         <tr>
                             <td colspan="2">
-                                <input type="radio" name="ssid" value="{0}" />{0}
+                                <input type="radio" name="ssid" value="{0}"/>{0}
                             </td>
                         </tr>
         """.format(ssid))
@@ -186,11 +189,13 @@ def handle_configure(client, request):
         return False
     # version 1.9 compatibility
     try:
-        ssid = match.group(1).decode("utf-8").replace("%3F", "?").replace("%21", "!")
-        password = match.group(2).decode("utf-8").replace("%3F", "?").replace("%21", "!")
+        ssid = match.group(1).decode(
+            "utf-8").replace("%3F", "?").replace("%21", "!").replace("%2F", "/").replace("%20", " ").replace("+", " ")
+        password = match.group(2).decode(
+            "utf-8").replace("%3F", "?").replace("%21", "!").replace("%2F", "/").replace("%20", " ").replace("+", " ")
     except Exception:
-        ssid = match.group(1).replace("%3F", "?").replace("%21", "!")
-        password = match.group(2).replace("%3F", "?").replace("%21", "!")
+        ssid = match.group(1).replace("%3F", "?").replace("%21", "!").replace("%2F", "/").replace("%20", " ").replace("+", " ")
+        password = match.group(2).replace("%3F", "?").replace("%21", "!").replace("%2F", "/").replace("%20", " ").replace("+", " ")
 
     if len(ssid) == 0:
         send_response(client, "SSID must be provided", status_code=400)
@@ -203,13 +208,13 @@ def handle_configure(client, request):
                     <br><br>
                     <h1 style="color: #5e9ca0; text-align: center;">
                         <span style="color: #ff0000;">
-                            ESP successfully connected to WiFi network %(ssid)s.
+                            ESP successfully connected to WiFi network {} with IP {}.
                         </span>
                     </h1>
                     <br><br>
                 </center>
             </html>
-        """ % dict(ssid=ssid)
+        """.format(ssid,wlan_sta.ifconfig()[0])
         send_response(client, response)
         try:
             profiles = read_profiles()
@@ -269,12 +274,15 @@ def start(port=80):
     server_socket.bind(addr)
     server_socket.listen(1)
 
-    print('Connect to WiFi ssid ' + ap_ssid + ', default password: ' + ap_password)
+    print('Connect to WiFi ssid ' + ap_ssid +
+    ', default password: ' + ap_password)
     print('and access the ESP via your favorite web browser at 192.168.4.1.')
     print('Listening on:', addr)
 
     while True:
         if wlan_sta.isconnected():
+            # stop AP mode to save energy
+            wlan_ap.active(False)
             return True
 
         client, addr = server_socket.accept()
@@ -295,9 +303,11 @@ def start(port=80):
 
             # version 1.9 compatibility
             try:
-                url = ure.search("(?:GET|POST) /(.*?)(?:\\?.*?)? HTTP", request).group(1).decode("utf-8").rstrip("/")
+                url = ure.search("(?:GET|POST) /(.*?)(?:\\?.*?)? HTTP",
+                                request).group(1).decode("utf-8").rstrip("/")
             except Exception:
-                url = ure.search("(?:GET|POST) /(.*?)(?:\\?.*?)? HTTP", request).group(1).rstrip("/")
+                url = ure.search(
+                    "(?:GET|POST) /(.*?)(?:\\?.*?)? HTTP", request).group(1).rstrip("/")
             print("URL is {}".format(url))
 
             if url == "":
