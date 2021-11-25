@@ -186,10 +186,10 @@ def handle_configure(client, request):
         return False
     # version 1.9 compatibility
     try:
-        ssid = match.group(1).decode("utf-8").replace("%3F", "?").replace("%21", "!")
+        ssid = match.group(1).decode("utf-8").replace("%3F", "?").replace("%21", "!").replace("+", " ")
         password = match.group(2).decode("utf-8").replace("%3F", "?").replace("%21", "!")
     except Exception:
-        ssid = match.group(1).replace("%3F", "?").replace("%21", "!")
+        ssid = match.group(1).replace("%3F", "?").replace("%21", "!").replace("+", " ")
         password = match.group(2).replace("%3F", "?").replace("%21", "!")
 
     if len(ssid) == 0:
