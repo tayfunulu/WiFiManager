@@ -99,6 +99,13 @@ def do_connect(ssid, password):
     return connected
 
 
+def get_ip():
+    if wlan_sta.isconnected():
+        return wlan_sta.ifconfig()[0]
+    else:
+        return None
+
+
 def send_header(client, status_code=200, content_length=None ):
     client.sendall("HTTP/1.0 {} OK\r\n".format(status_code))
     client.sendall("Content-Type: text/html\r\n")
