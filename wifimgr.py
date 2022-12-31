@@ -94,6 +94,7 @@ def do_connect(ssid, password):
         print('.', end='')
     if connected:
         print('\nConnected. Network config: ', wlan_sta.ifconfig())
+        wlan_ap.active(False)
     else:
         print('\nFailed. Not Connected to: ' + ssid)
     return connected
@@ -275,6 +276,7 @@ def start(port=80):
 
     while True:
         if wlan_sta.isconnected():
+            wlan_ap.active(False)
             return True
 
         client, addr = server_socket.accept()
