@@ -291,7 +291,7 @@ def start(port=80):
 
             # Handle form data from Safari on macOS and iOS; it sends \r\n\r\nssid=<ssid>&password=<password>
             try:
-                request += client.recv(512)
+                request += client.recv(1024)
                 print("Received form data after \\r\\n\\r\\n(i.e. from Safari on macOS or iOS)")
             except OSError:
                 pass
