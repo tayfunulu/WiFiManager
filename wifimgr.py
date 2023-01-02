@@ -212,6 +212,7 @@ def handle_configure(client, request):
             </html>
         """ % dict(ssid=ssid)
         send_response(client, response)
+        time.sleep(1)
         wlan_ap.active(False)
         try:
             profiles = read_profiles()
