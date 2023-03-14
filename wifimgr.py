@@ -6,6 +6,7 @@ import time
 ap_ssid = "WifiManager"
 ap_password = "tayfunulu"
 ap_authmode = 3  # WPA2
+connect_to_open_wifis = False
 
 NETWORK_PROFILES = 'wifi.dat'
 
@@ -47,8 +48,8 @@ def get_connection():
                     connected = do_connect(ssid, password)
                 else:
                     print("skipping unknown encrypted network")
-            else:  # open
-                connected = do_connect(ssid, None)
+            elif connect_to_open_wifis:
+                    connected = do_connect(ssid, None)
             if connected:
                 break
 
