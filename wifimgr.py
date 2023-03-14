@@ -7,6 +7,10 @@ ap_ssid = "WifiManager"
 ap_password = "tayfunulu"
 ap_authmode = 3  # WPA2
 
+# If `link_to_next_webui` is set to `True` on the successfully connected page there is a link to the IP of the ESP in the newly connected WiFi.
+# This is useful if the ESP shows an other web interface after the WiFiManager, because the user can just click the link and doesn't have to search the new IP of the ESP.
+link_to_next_webui = True
+
 NETWORK_PROFILES = 'wifi.dat'
 
 wlan_ap = network.WLAN(network.AP_IF)
@@ -204,13 +208,21 @@ def handle_configure(client, request):
                     <br><br>
                     <h1 style="color: #5e9ca0; text-align: center;">
                         <span style="color: #ff0000;">
-                            ESP successfully connected to WiFi network %(ssid)s.
+                            ESP successfully connected to WiFi network %(ssid)s with IP %(ip)s.
                         </span>
-                    </h1>
+                    </h1>""" % dict(ssid=ssid, ip=wlan_sta.ifconfig()[0])
+        if link_to_next_webui:
+            response += """\
+                    <p style="text-align: center;">
+                        <a href="http://%(ip)s/">To new Interface</a><br>
+                        (You must be connected to the set network to follow this Link)
+                    </p>
+                    """ % dict(ip=wlan_sta.ifconfig()[0])
+        response += """\
                     <br><br>
                 </center>
             </html>
-        """ % dict(ssid=ssid)
+        """
         send_response(client, response)
         time.sleep(1)
         wlan_ap.active(False)
