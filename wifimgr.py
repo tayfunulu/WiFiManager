@@ -100,11 +100,14 @@ def do_connect(ssid, password):
     return connected
 
 
-def send_header(client, status_code=200, content_length=None ):
+def send_header(client, status_code=200, content_length=None, redirect=None):
     client.sendall("HTTP/1.0 {} OK\r\n".format(status_code))
-    client.sendall("Content-Type: text/html\r\n")
-    if content_length is not None:
-      client.sendall("Content-Length: {}\r\n".format(content_length))
+    if redirect:
+        client.sendall("Location: {}\r\n".format(redirect))
+    else:
+        client.sendall("Content-Type: text/html\r\n")
+        if content_length is not None:
+            client.sendall("Content-Length: {}\r\n".format(content_length))
     client.sendall("\r\n")
 
 
@@ -245,7 +248,11 @@ def handle_configure(client, request):
 
 
 def handle_not_found(client, url):
-    send_response(client, "Path not found: {}".format(url), status_code=404)
+    if 'favicon' in url:
+        send_header(client, status_code=404)
+    else:
+        send_header(client, status_code=307, redirect='/')
+    client.close()
 
 
 def stop():
