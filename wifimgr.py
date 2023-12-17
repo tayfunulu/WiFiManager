@@ -1,11 +1,12 @@
 import network
 import socket
-import ure
 import time
+import ure
+import wifimgr_utils
 
-ap_ssid = "WifiManager"
-ap_password = "tayfunulu"
-ap_authmode = 3  # WPA2
+AP_SSID = "wifimanager"
+AP_PASSWORD = "wifimanager"
+AP_AUTHMODE = 3  # WPA2
 
 NETWORK_PROFILES = 'wifi.dat'
 
@@ -14,7 +15,6 @@ wlan_sta = network.WLAN(network.STA_IF)
 
 server_socket = None
 
-
 def get_connection():
     """return a working WLAN(STA_IF) instance or None"""
 
@@ -22,12 +22,13 @@ def get_connection():
     if wlan_sta.isconnected():
         return wlan_sta
 
-    connected = False
+    # ESP connecting to WiFi takes time, wait a bit and try again:
+    time.sleep(3)
+    if wlan_sta.isconnected():
+        return wlan_sta
+
     try:
-        # ESP connecting to WiFi takes time, wait a bit and try again:
-        time.sleep(3)
-        if wlan_sta.isconnected():
-            return wlan_sta
+        connected = False
 
         # Read known network profiles from file
         profiles = read_profiles()
@@ -187,11 +188,12 @@ def handle_configure(client, request):
         return False
     # version 1.9 compatibility
     try:
-        ssid = match.group(1).decode("utf-8").replace("%3F", "?").replace("%21", "!")
-        password = match.group(2).decode("utf-8").replace("%3F", "?").replace("%21", "!")
+        ssid = wifimgr_utils.unquote(match.group(1).decode("utf-8"))
+        password = wifimgr_utils.unquote(match.group(2).decode("utf-8"))
     except Exception:
-        ssid = match.group(1).replace("%3F", "?").replace("%21", "!")
-        password = match.group(2).replace("%3F", "?").replace("%21", "!")
+        # Not both groups of ssid and password captured
+        send_response(client, "SSID and/or password not provided", status_code=400)
+        return False
 
     if len(ssid) == 0:
         send_response(client, "SSID must be provided", status_code=400)
@@ -266,13 +268,13 @@ def start(port=80):
     wlan_sta.active(True)
     wlan_ap.active(True)
 
-    wlan_ap.config(essid=ap_ssid, password=ap_password, authmode=ap_authmode)
+    wlan_ap.config(essid=AP_SSID, password=AP_PASSWORD, authmode=AP_AUTHMODE)
 
     server_socket = socket.socket()
     server_socket.bind(addr)
     server_socket.listen(1)
 
-    print('Connect to WiFi ssid ' + ap_ssid + ', default password: ' + ap_password)
+    print('Connect to WiFi ssid ' + AP_SSID + ', default password: ' + AP_PASSWORD)
     print('and access the ESP via your favorite web browser at 192.168.4.1.')
     print('Listening on:', addr)
 
