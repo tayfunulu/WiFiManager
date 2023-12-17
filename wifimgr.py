@@ -4,8 +4,8 @@ import time
 import ure
 import wifimgr_utils
 
-AP_SSID = "wifimanager"
-AP_PASSWORD = "wifimanager"
+AP_SSID = "WifiManager"
+AP_PASSWORD = "tayfunulu"
 AP_AUTHMODE = 3  # WPA2
 
 NETWORK_PROFILES = 'wifi.dat'
